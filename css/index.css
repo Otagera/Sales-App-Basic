@@ -1,0 +1,400 @@
+@keyframes intro-content {
+  0% {
+    opacity: 0; 
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes intro-header {
+  0% {
+    transform: translateY(40px) scale(0.6);
+  }
+  100% {
+    transform: translate(0) scale(1);
+  }
+}
+:root {  
+  --bg-color: 255, 255, 255;
+  --text-color: 12, 12, 12;
+  --shadow-color: 0, 0, 0;
+  --gradient-1: 108, 29, 103;
+  --gradient-2: 100, 25, 148;
+  --sidebar-gradient-1: 255, 255, 255;
+  --sidebar-gradient-1: 251, 247, 247;
+}
+.icon {
+  transition: transform .4s;
+  transform-origin: center;
+  transition-timing-function: cubic-bezier(0.9, 1.65, 0.42, 0.61);
+  /*This filer is for when you want the invert from dark mode to light mode*/
+  /*filter: brightness(100%) invert(100%);*/
+}
+.icon:hover {
+  transform: rotate(90deg); 
+}
+.writeIcon {
+  z-index: 100;
+  transition: transform .4s;
+  transform-origin: center;
+  transition-timing-function: cubic-bezier(0.9, 1.65, 0.42, 0.61);
+}
+.writeIcon:hover {
+  transform: scale(1.5) rotate(90deg);
+}
+
+
+#bg {
+  /*background-image: url("../images/logo.jpg");*/
+  background-color: cyan;
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
+  height: 100vh;
+  width: 100%;
+  margin: 0;
+  position: fixed;
+}
+
+#dimmed-bg {
+  height: 100vh;
+  width: 100%;
+  position: fixed;
+  background-color: rgba(20, 20, 20, 0.86);
+  top: 0;
+  left: 0;
+}
+
+#landing {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: white;
+  transition: all .4s;
+  position: relative;
+  z-index: 10;
+  animation-name: intro-content;
+  animation-duration: 5.4s;
+  animation-delay: .1s;
+  animation-fill-mode: both;
+}
+#landing #divBtns {
+  display: flex;
+}
+#landing h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  animation-name: intro-header;
+  animation-duration: 5s;
+  animation-delay: .1s; 
+}
+#landing p {
+  width: 26vw;
+  text-align: center;
+  line-height: 190%;
+}
+#landing #divBtns button {
+  color: #425831;
+  background-color: white;
+  padding: .6em 4.2em;
+  border-radius: 4px;
+  margin-top: 0.875rem;
+}
+#landing #divBtns button:hover {
+  opacity: .8; 
+} 
+
+#full-site {
+  display: flex;
+  flex-direction: row;
+  visibility: hidden;
+  overflow: hidden;
+  max-height: 100vh;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+  /*background: linear-gradient(to right, #25c481, #25b7c4);*/
+}
+#menu-section {
+  color: rgba(var(--text-color), 1);
+}
+#menu-section input {
+  display: none;
+}
+
+input#menu:checked ~ #menu-controller {
+  transform: translate(-10vw);
+}
+
+input#menu:checked ~ #menu-dimmed-bg {
+  visibility: visible;
+  transform: translate(0);
+  transition: transform 1s 0s;
+}
+
+input#menu:checked ~ #menu-content {
+  visibility: visible;
+  transform: translate(0);
+  transition: transform .5s .4s;
+}
+
+#menu-controller {
+  width: calc(4.5vw + 70px);
+  min-height: 100vh;
+  height: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  padding-top: 40px;
+  transition: transform 1s;
+  background-image: linear-gradient(rgba(var(--sidebar-gradient-1), 1), rgba(var(--sidebar-gradient-2), 1));
+  box-shadow: 0 10px 30px rgba(var(--shadow-color), 0.19), 0 6px 6px rgba(var(--shadow-color), 0.23);
+}
+#menu-controller label {
+  width: 40px;
+  margin: 0 auto;
+  background-position: center;
+  height: 50px;
+  display: block;
+  background-image: url("../images/hamburger.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+#menu-dimmed-bg {
+  visibility: hidden;
+  transform: translate(-120vw);
+  transition: all 0.8s 0.2s, color 0.2s, background-color 0.2s;
+  background-color: rgba(var(--text-color), 0.6);
+  z-index: 1;
+  position: fixed;
+  top: 0;
+  min-height: 100vh;
+  width: 100%;
+}
+
+#menu-content {
+  --menu-font-size: 2.25rem;
+  transform: translate(-1200px);
+  visibility: hidden;
+  transition: all 0.6s 0s, color 0.2s, background-color 0.2s;
+  padding: 40px;
+  padding-left: 100px;
+  position: absolute;
+  top: 0;
+  z-index: 2;
+  box-sizing: border-box;
+  min-height: 100vh;
+  background-color: rgba(var(--bg-color), 1);
+  width: 54%;
+}
+  #menu-content header {
+    transition: all 0.2s;
+    display: flex;
+    justify-content: space-between; }
+    #menu-content header h4 {
+      text-transform: uppercase;
+      margin: 0;
+      font-size: var(--menu-font-size); }
+    #menu-content header label {
+      width: 40px;
+      height: 40px;
+      margin-right: 100px;
+      background-image: url("../images/close.png");
+      background-size: contain;
+      background-repeat: no-repeat; }
+  #menu-content #theme {
+    transition: all 0.2s; }
+    #menu-content #theme h5 {
+      margin-top: 7rem;
+      font-size: var(--menu-font-size);
+      text-transform: uppercase;
+      line-height: 10%; }
+      #menu-content #theme h5 span {
+        margin-left: 40px; }
+        #menu-content #theme h5 span:hover {
+          opacity: .6; }
+  #menu-content #completed-tasks {
+    transition: all 0.2s; }
+    #menu-content #completed-tasks h5 {
+      font-size: var(--menu-font-size);
+      margin: 7rem 0 1.5rem;
+      text-transform: uppercase; }
+    #menu-content #completed-tasks li {
+      font-size: var(--menu-font-size);
+      list-style: none;
+      margin: 12px 0;
+      width: max-content;
+      padding: 5px; }
+      #menu-content #completed-tasks li span {
+        margin-right: 22px; }
+  #menu-content #reset {
+    transition: all 0.2s;
+    font-size: var(--menu-font-size);
+    text-transform: uppercase;
+    padding: 5px;
+    width: max-content; }
+    #menu-content #reset:hover {
+      background-color: rgba(var(--text-color), 1);
+      color: rgba(var(--bg-color), 1); }
+  @media (max-width: 1500px) {
+    #menu-content {
+      width: 70%; } }
+
+
+#main {
+  flex-grow: 1;
+  position: relative;
+  margin: 20px auto 0;
+  /*margin-top: 20px;*/
+  /*margin-left: auto;*/
+  z-index: auto;
+  flex-direction: column;
+}
+#main::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: -1;
+  height: 44vh;
+  width: 20%;
+  background-image: linear-gradient(rgba(var(--gradient-1), 1), rgba(var(--gradient-2), 1));
+  clip-path: polygon(0 0, 100% 0, 100% 83%, 22% 100%);
+  height: 100vh;
+  width: 100%;
+}
+@media (max-width: 1600px) {
+  #main::after {
+    width: 30%; 
+  }
+}
+@media (max-width: 1400px) {
+  #main::after {
+    height: 38vh;
+    width: 40%;
+    clip-path: polygon(0 0, 100% 0, 100% 83%, 22% 100%);
+  }
+}
+@media (max-width: 1100px) {
+  #main::after {
+    position: absolute;
+    height: 10vh;
+    width: 100%;
+    top: auto;
+    bottom: 0;
+    clip-path: polygon(0 39%, 100% 0, 100% 100%, 0% 100%);
+  }
+}
+
+#main header {
+  margin: 0 auto;
+  text-align: center;
+  padding: 0.5rem;
+  width: 35%;
+  height: 100px;
+  box-shadow: 0 10px 30px rgba(var(--shadow-color), 0.19), 0 6px 6px rgba(var(--shadow-color), 0.23);
+  background-color: rgba(var(--bg-color), 1);
+  justify-content: space-around;
+}
+#main #mainBody {
+  display: flex;
+  flex-direction: row;
+  margin-top: 10px;
+}
+
+#main #list {
+  height: 65vh;
+  width: 30%;
+  display: hidden;
+  z-index: -1;
+}
+#main table{
+  margin: 1em 0;
+  border-collapse: collapse;
+  border: 0.1em solid #d6d6d6;
+}
+#main table td, th{
+  border: 1px solid #999;
+  padding: 0.5rem;
+  text-align: center;
+}
+#main table th {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  background-color: #666;
+  background: linear-gradient(rgba(var(--gradient-1), .9), rgba(var(--gradient-2), 0.1)); 
+}
+#main table tbody tr:nth-child(odd){
+  background: #eee;
+}
+#main table tbody tr:hover {
+  background: linear-gradient(rgba(var(--gradient-1), 1), rgba(var(--gradient-2), 1));
+}
+tr.test {
+  display: none;
+  transition: display 10.5s .4s;
+}
+#main table tr.test td {
+  padding: 0;
+  text-align: left;
+}
+
+#editForm {
+  background: linear-gradient(rgba(var(--gradient-1), .9), rgba(var(--gradient-2), 0.1));
+  height: 65vh;
+  border: 1px solid;
+  width: 30%; 
+}
+
+#editForm form ::placeholder {
+  color: inherit;
+}
+#editForm form{
+  margin: 30px auto 0;
+  display: block;
+  width: max-content;
+}
+.input-group {
+  height: 50px;
+
+}
+.input-group label{
+  font-size: 18px;
+  margin: 10px 0;
+  padding: 56px 14px;
+}
+.input-group input{
+  width: 200px;
+  font-size: 18px;
+  color: linear-gradient(rgba(var(--gradient-1), 1), rgba(var(--gradient-2), 1));
+  outline: none;
+  border: none;
+  border-bottom: 5px solid;
+  padding: 6px 14px;
+  float: right;
+}
+#editForm form input[type="submit"] {
+  background: linear-gradient(rgba(var(--gradient-1), 1), rgba(var(--gradient-2), 1));
+  color: black;
+  border-radius: 4px;
+  width: max-content;
+  font-size: 20px;
+  border-bottom: none;
+  padding: .6em 3em;
+  float: right;
+}
+#editForm form input[type="submit"]:hover {
+  opacity: .6;
+}
+#editForm #productList {
+  height: 100px;
+  width: 200px;
+  margin: -40px 0 0 150px;
+  padding: 0 0 0 0;
+}
