@@ -31,8 +31,17 @@ class InventoryItem {
 		this.product = product;
 		this.quantity = quantity || Math.floor(Math.random() * (50 - 0) + 0 );
 	}
-};
+};/*
+//Prevent Enter from submnitting form 
 
+$(document).ready(()=>{
+	$(window).keydown((event)=>{
+		if(event.which === 13) {
+			event.preventDefault();
+			return false;
+		}
+	});
+});*/
 (function(){
 
 	let model = {
@@ -41,12 +50,14 @@ class InventoryItem {
 		order: [],
 		inventory: [],
 		state: "",
+		ENTER_KEY: 13,
+		ESC_KEY: 27,
 
 		init: () => {
 			//Initialize Sample Product
 			if(!localStorage.product || JSON.parse(localStorage.product).length === 0) {
 				let onehun = new Product("onehun", "100g Toothpaste", 10, 11, 2.2);
-				let twohun = new Product("twohun", "100g Toothpaste", 10, 11, 2.2);
+				let twohun = new Product("twohun", "200g Toothpaste", 10, 11, 2.2);
 				let sod = new Product("sod", "SOD", 10, 11, 2.2);
 				let cal = new Product("cal", "Calcium", 10, 11, 2.2);
 				let lib = new Product("lib", "Libao", 10, 11, 2.2);
@@ -125,6 +136,15 @@ class InventoryItem {
 					model.inventory.push(tempInventory);
 				});
 			}
+		},
+		setState: (text)=>{
+			if (text === "Product") {
+				model.state = "product";
+			}else if (text === "Order") {
+				model.state = "order";
+			}else if (text === "Inventory") {
+				model.state = "inventory";
+			}
 		}
 	};
 
@@ -142,8 +162,17 @@ class InventoryItem {
 		getInventory: () => {
 			return model.inventory;
 		},
+		setState: (text)=>{
+			model.setState(text);
+		},
 		getState: ()=>{
 			return model.state;
+		},
+		setLocalStorage: (tempState)=>{
+			model.setLocalStorage(tempState);
+		},
+		getLocalStorage:()=>{
+			return model.getLocalStorage();
 		}
 	};
 	let viewLanding = {
@@ -163,18 +192,70 @@ class InventoryItem {
 			$("#list").css("z-index", "auto");
 
 			//set State
-			if (e.target.textContent === "Product") {
-				model.state = "product";
-			}else if (e.target.textContent === "Order") {
-				model.state = "order";
-			}else if (e.target.textContent === "Inventory") {
-				model.state = "inventory";
-			}
+			octupus.setState(e.target.textContent);
+
 			viewLanding.render();
 			viewLanding.simpleBar();
-			$(".clicker").click((ee)=>{viewMainOrder.renderProducts(ee);});
-			$(".test").click((ee)=>{viewMainOrder.unrenderProducts(ee);});
-			$(".writeIconSpan").click((eee)=>{viewMainEdit.init(eee);});
+			viewLanding.event();
+		},
+		event: ()=>{
+			$(".clicker").click((e)=>{viewMainOrder.renderProducts(e);});
+			$(".writeIconSpan").click((e)=>{
+				viewMainEdit.init(e, "edit");
+				$(".productRow").on("dblclick", ".textDoubleCLick", (ee)=>{
+					$(ee.target).replaceWith(`<input class="smallTableInput" id="" type="" name="" value="${ee.target.textContent}">`);
+					$(".productRow").on("keypress", ".smallTableInput", (eee)=>{
+						if(eee.which === 13) {
+							eee.preventDefault();
+							$(eee.target).replaceWith(`<td class="textDoubleCLick">${eee.target.value}</td>`);
+							return;
+						}
+					});
+				});
+				$(".submit").click((ee)=>{
+					$("#productList tbody input").each((itr, inp)=>{
+						inp.classList.forEach((t)=>{
+							console.log(t);
+							if(t === "smallTableInput"){
+								inp.replaceWith(`<td class="textDoubleCLick">${inp.value}</td>`);
+							}
+						});
+					});
+					ee.preventDefault();
+					viewMainEdit.saveChanges(e);
+				});
+
+			});
+			$(".deleteIconSpan").click((e)=>{
+				viewMainModal.init();
+				$("#yesDelete").click(()=>{
+                    $('#yesDelete').css({display: "block"}).html('<img src="../images/loader.gif" alt="..." width: "10" height="10";>');
+					viewMainEdit.init(e, "delete");
+					// $("#editForm").css("visibility", "hidden");
+				});
+				$("#noDelete").click(()=>{
+					$("#editForm").html("");
+					$("#editForm").css("visibility", "hidden");
+				});
+			});
+			$(".addBtns").click((e)=>{
+				octupus.setState(e.target.textContent);
+				viewLanding.render();
+				viewMainEdit.init(e, "new");
+
+				$(".submit").click((ee)=>{
+					$("#productList tbody input").each((itr, inp)=>{
+						inp.classList.forEach((t)=>{
+							console.log(t);
+							if(t === "smallTableInput"){
+								inp.replaceWith(`<td class="textDoubleCLick">${inp.value}</td>`);
+							}
+						});
+					});
+					ee.preventDefault();
+					viewMainEdit.saveChanges();
+				});
+			});
 		},
 		render: () => {
 			if (model.state === "product") {
@@ -205,23 +286,31 @@ class InventoryItem {
 		},
 		render: () => {
 			$("thead").html("<tr data-id='123'>"
+							+ "<th> </td>"
 							+ "<th>Product Code</td>"
 							+ "<th>Name</td>"
 							+ "<th>Unit Price</td>"
 							+ "<th>Retail Price</td>"
 							+ "<th>PV</td>"
+							+ "<th> </td>"
 							+ "</tr>");
 			let display = "";
 			for(let i = 0; i < octupus.getProduct().length; i++){
-				display += `<tr>`
+				display += `<tr data-pcode="${octupus.getProduct()[i].productCode}">`
+							+  `<td>`
+								+  `<span class="writeIconSpan"><i class="fas fa-pen writeIcon"></i> </span>`
+							+  `</td>`
 							+  `<td>${octupus.getProduct()[i].productCode}</td>`
 							+  `<td>${octupus.getProduct()[i].name}</td>`
 							+  `<td>${octupus.getProduct()[i].unitPrice}</td>`
 							+  `<td>${octupus.getProduct()[i].retailPrice}</td>`
 							+  `<td>${octupus.getProduct()[i].PV}</td>`
+							+  `<td>`
+								+  `<span class="deleteIconSpan"><i class="fas fa-trash deleteIcon"></i> </span>`
+							+  `</td>`
 						+  `</tr>`;
 			}
-			$("#list").css("width", "39.3%");
+			$("#list").css("width", "41.3%");
 			$("#list").css("margin-left", "5.5rem");
 			$("#editForm").css("visibility", "hidden");
 			$("tbody").html(display);
@@ -232,7 +321,7 @@ class InventoryItem {
 			viewMainOrder.render();
 		},
 		render: () => {
-			$("thead").html("<tr>"
+			$("#list").find("thead").html("<tr>"
 							+ "<th>Index</th>"
 							+ "<th>Customer Name</th>"
 							+ "<th>Customer Code</th>"
@@ -258,7 +347,10 @@ class InventoryItem {
 							+  `<td>${octupus.getOrder()[i].customerCode}</td>`
 							+  `<td>${octupus.getOrder()[i].longrichOrderCode}</td>`
 							+  `<td>${octupus.getOrder()[i].coment}</td>`
-							+  `<td>${octupus.getOrder()[i].modeOfPayment}</td>`
+							+  `<td>`
+								+  `${octupus.getOrder()[i].modeOfPayment}`
+								+  `<span class="deleteIconSpan"><i class="fas fa-trash deleteIcon"></i> </span>`
+							+  `</td>`
 						+  `</tr>`
 						+  `<tr class="test" data-id="${octupus.getOrder()[i].index}">`
 							+  `<td colspan="6">`
@@ -270,7 +362,8 @@ class InventoryItem {
 			$("#list").css("width", "60%");
 			$("#list").css("margin-left", "1.5rem");
 			$("#editForm").css("visibility", "hidden");
-			$("tbody").html(display);
+			$("#productList").css("display", "none");
+			$("#list").find("tbody").html(display);
 		},
 		renderProducts: (ee) => {
 			$(".test").each((i, tr)=>{
@@ -293,15 +386,19 @@ class InventoryItem {
 							+ "<th> </th>"
 							+ "<th>Products</th>"
 							+ "<th>Quantity</th>"
+							+ "<th> </th>"
 						+ "</tr>");
 			let display = "";
 			for(let i = 0; i < octupus.getInventory().length; i++){
-				display += `<tr>`
+				display += `<tr data-pcode="${octupus.getInventory()[i].product.productCode}">`
 							+  `<td>`
 								+  `<span class="writeIconSpan"><i class="fas fa-pen writeIcon"></i> </span>`
 							+  `</td>`
 							+  `<td>${octupus.getInventory()[i].product.name}</td>`
 							+  `<td>${octupus.getInventory()[i].quantity}</td>`
+							+  `<td>`
+								+  `<span class="deleteIconSpan"><i class="fas fa-trash deleteIcon"></i> </span>`
+							+  `</td>`
 						+  `</tr>`;
 			}
 			$("#list").css("width", "30%");
@@ -310,86 +407,145 @@ class InventoryItem {
 			$("tbody").html(display);
 		}
 	};
-	let viewMainEdit = {
-		init: (eee) => {
-			console.log("viewMainEdit.init()");
-			if(octupus.getState() == "product"){
-				octupus.getProduct().forEach((ord)=>{
-					if(ord.index == eee.currentTarget.parentElement.parentElement.dataset.index){
-						viewMainEdit.render(ord);
-					}
-				});
-				display = viewMainEdit.productEdit(selected);
-				$("#editForm").css("margin-left", "5.5rem");
-			}else if(octupus.getState() == "order"){
-				octupus.getOrder().forEach((ord)=>{
-					if(ord.index == eee.currentTarget.parentElement.parentElement.dataset.index){
-						viewMainEdit.render(ord);
-					}
-				});
-				display = viewMainEdit.orderEdit(selected);
-				$("#editForm").css("margin-left", "1.5rem");
-			}else if(octupus.getState() == "order"){
-				octupus.getInventory().forEach((ord)=>{
-					if(ord.index == eee.currentTarget.parentElement.parentElement.dataset.index){
-						viewMainEdit.render(ord);
-					}
-				});
-				display = viewMainEdit.inventoryEdit(selected);
-				$("#editForm").css("margin-left", "5rem");
-			}
-			octupus.getOrder().forEach((ord)=>{
-				if(ord.index == eee.currentTarget.parentElement.parentElement.dataset.index){
-					viewMainEdit.render(ord);
-				}
-			});
-			$("#editForm").css("css", "75vh");
+	let viewMainModal = {
+		init: ()=>{
+			viewMainModal.modalRender();
+		},
+		modalRender: ()=>{
 			$("#editForm").css("visibility", "visible");
+			$("#editForm").css("margin-left", "5.5rem");
+			$("#editForm").css("margin-top", "auto");
+			$("#editForm").css("margin-bottom", "auto");
+			$("#editForm").css("height", "25vh");
+			$("#editForm").html(`<div id="modal">`
+				+ `<h2 class="bold">This would this ${octupus.getState()}. <br> Are you sure you want to do that?</h2>`
+				+ `<button class="black" id="yesDelete">Yes</button>`
+				+ `<button class="black" id="noDelete">No</button>`
+			+ `</div>`);
+		},
+		successRender: (whatWasDeleted)=>{
+			let name = "";
+			if(octupus.getState() === "product") {
+				name = whatWasDeleted.name;
+			} else if(octupus.getState() === "order") {
+				name = whatWasDeleted.customerName;
+			} else if(octupus.getState() === "inventory") {
+				// name = whatWasDeleted.name;
+			}
+			$("#editForm").html(`<h2 class="bold">${name} has been succesfully deleted.<br></h2>`);	
+			let timeout = setTimeout(()=>{
+				$("#editForm").html(``);
+			}, 5000);
+			clearTimeout(timeout);
+		}
+	}
+	let viewMainEdit = {
+		init: (eee, operation) => {
+			if(operation === "edit"){
+				if(octupus.getState() == "product"){
+					octupus.getProduct().forEach((prod)=>{
+						if(prod.productCode == eee.currentTarget.parentElement.parentElement.dataset.pcode){
+							viewMainEdit.render(prod);
+						}
+					});
+				}else if(octupus.getState() == "order"){
+					octupus.getOrder().forEach((ord)=>{
+						if(ord.index == eee.currentTarget.parentElement.parentElement.dataset.index){
+							viewMainEdit.render(ord);
+						}
+					});
+				}else if(octupus.getState() == "inventory"){
+					octupus.getInventory().forEach((inv)=>{
+						if(inv.product.productCode == eee.currentTarget.parentElement.parentElement.dataset.pcode){
+							viewMainEdit.render(inv);
+						}
+					});
+				}			
+			}else if(operation === "new"){
+				viewMainEdit.render();
+			}else if(operation === "delete"){
+				if(octupus.getState() == "product"){
+					octupus.getProduct().forEach((prod, i)=>{
+						if(prod.productCode == eee.currentTarget.parentElement.parentElement.dataset.pcode){
+							octupus.getProduct().splice(i, 1);
+							octupus.setLocalStorage("product");
+							setTimeout(()=>{
+								viewMainModal.successRender(prod);
+							}, 2000);
+						}
+					});
+				}else if(octupus.getState() == "order"){
+					octupus.getOrder().forEach((ord, i)=>{
+						if(ord.index == eee.currentTarget.parentElement.parentElement.dataset.index){
+							octupus.getOrder().splice(i, 1);
+							octupus.setLocalStorage("order");
+							setTimeout(()=>{
+								viewMainModal.successRender(prod);
+							}, 2000);
+						}
+					});
+				}else if(octupus.getState() == "inventory"){
+					octupus.getInventory().forEach((inv, i)=>{
+						if(inv.product.productCode == eee.currentTarget.parentElement.parentElement.dataset.pcode){
+							octupus.getInventory().splice(i, 1);
+							octupus.setLocalStorage("inventory");
+							setTimeout(()=>{
+								viewMainModal.successRender(prod);
+							}, 2000);
+						}
+					});
+				}
+				setTimeout(()=>{
+					viewMainProduct.init();
+					viewLanding.event();
+				}, 2000);
+			}
 		},
 		render: (selected) => {
-			console.log(octupus.getState());
 			let display = "";
 			
 			if(octupus.getState() == "product"){
 				display = viewMainEdit.productEdit(selected);
-				$("#editForm").css("css", "75vh");
 				$("#editForm").css("margin-left", "5.5rem");
-				$("#editForm").css("visibility", "visible");
+				$("#editForm").css("height", "55vh");
 			}else if(octupus.getState() == "order"){
 				display = viewMainEdit.orderEdit(selected);
-				$("#editForm").css("css", "75vh");
 				$("#editForm").css("margin-left", "1.5rem");
-				$("#editForm").css("visibility", "visible");
-			}else if(octupus.getState() == "order"){
+				$("#productList").css("display", "initial");
+				$("#editForm").css("height", "75vh");
+			}else if(octupus.getState() == "inventory"){
 				display = viewMainEdit.inventoryEdit(selected);
-				$("#editForm").css("css", "75vh");
 				$("#editForm").css("margin-left", "5rem");
-				$("#editForm").css("visibility", "visible");
+				$("#editForm").css("height", "25vh");
+				$("#editForm").css("margin-top", "5rem");
 			}
+			$("#editForm").css("visibility", "visible");
 			$("#editForm").html(display);
 		},
 		productEdit: (selected)=> {
+			let tempSelected = selected || new Product("", "", "", "", "");
 			let display = `<form>`
 							+  `<div class="input-group">`
-								+  `<label>Product Code: ${selected.productCode}</label>`
+								+  `<label>Product Code: ${tempSelected.productCode}</label>`
+								+  `<input id="productCode" type="text" name="productCode" value="${tempSelected.productCode}">`
 							+  `</div>`
 							+  `<div class="input-group">`
 								+  `<label for="name">Name: </label>`
-								+  `<input id="name" type="text" name="name" value="${selected.name}">`
+								+  `<input id="name" type="text" name="name" value="${tempSelected.name}">`
 							+  `</div>`
 							+  `<div class="input-group">`
 								+  `<label for="unitPrice">Unit Price: </label>`
-								+  `<input id="unitPrice" type="text" name="unitPrice" value="${selected.unitPrice}">`
+								+  `<input id="unitPrice" type="text" name="unitPrice" value="${tempSelected.unitPrice}">`
 							+  `</div>`
 							+  `<div class="input-group">`
 								+  `<label for="retailPrice">Retail Price</label>`
-								+  `<input id="retailPrice" type="text" name="retailPrice" value="${selected.retailPrice}">`
+								+  `<input id="retailPrice" type="text" name="retailPrice" value="${tempSelected.retailPrice}">`
 							+  `</div>`
 							+  `<div class="input-group">`
-								+  `<label for="pv">Comment</label>`
-								+  `<input id="pv" type="text" name="pv" value="${selected.pv}">`
+								+  `<label for="pv">PV</label>`
+								+  `<input id="pv" type="text" name="pv" value="${tempSelected.PV}">`
 							+  `</div>`
-							+  `<input id="customerName" type="submit" name="submit" value="Submit">`
+							+  `<input  class="submit" id="submitProduct" type="submit" name="submit" value="Submit">`
 						+  `</form>`;
 			return display;
 		},
@@ -405,25 +561,26 @@ class InventoryItem {
 				+  `${prods}`
 			+  `</select>`
 			*/
+			let tempSelected = selected || new Order("", "", "", [], "", "");
 			let prods = "";
-			for(let i = 0; i < selected.products.length; i++){
-				prods += `<tr><td>${selected.products[i].product.name}</td><td>${selected.products[i].quantity}</td></tr>`;
+			for(let i = 0; i < tempSelected.products.length; i++){
+				prods += `<tr class="productRow"><td>${tempSelected.products[i].product.name}</td><td class="textDoubleCLick">${tempSelected.products[i].quantity}</td></tr>`;
 			}
 			let display = `<form>`
 							+  `<div class="input-group">`
-								+  `<label>Index: ${selected.index}</label>`
+								+  `<label id="indexLabel">Index: ${tempSelected.index}</label>`
 							+  `</div>`
 							+  `<div class="input-group">`
 								+  `<label for="customerName">Customer Name: </label>`
-								+  `<input id="customerName" type="text" name="customerName" value="${selected.customerName}">`
+								+  `<input id="customerName" type="text" name="customerName" value="${tempSelected.customerName}">`
 							+  `</div>`
 							+  `<div class="input-group">`
 								+  `<label for="customerCode">Customer Code: </label>`
-								+  `<input id="customerCode" type="text" name="customerCode" value="${selected.customerCode}">`
+								+  `<input id="customerCode" type="text" name="customerCode" value="${tempSelected.customerCode}">`
 							+  `</div>`
 							+  `<div class="input-group">`
 								+  `<label for="longrichOrderCode">Longrich Order Code</label>`
-								+  `<input id="longrichOrderCode" type="text" name="longrichOrderCode" value="${selected.longrichOrderCode}">`
+								+  `<input id="longrichOrderCode" type="text" name="longrichOrderCode" value="${tempSelected.longrichOrderCode}">`
 							+  `</div>`
 							+  `<div class="input-group" style="margin-bottom: 30px;">`
 								+  `<label for="products">Products: </label>`
@@ -436,13 +593,13 @@ class InventoryItem {
 							+  `</div>`
 							+  `<div class="input-group">`
 								+  `<label for="coment">Comment</label>`
-								+  `<input id="coment" type="text" name="coment" value="${selected.coment}">`
+								+  `<input id="coment" type="text" name="coment" value="${tempSelected.coment}">`
 							+  `</div>`
 							+  `<div class="input-group">`
 								+  `<label for="modeOfPayment">Mode Of Payment</label>`
-								+  `<input id="modeOfPayment" type="text" name="modeOfPayment" value="${selected.modeOfPayment}">`
+								+  `<input id="modeOfPayment" type="text" name="modeOfPayment" value="${tempSelected.modeOfPayment}">`
 							+  `</div>`
-							+  `<input id="customerName" type="submit" name="submit" value="Submit">`
+							+  `<input  class="submit" id="submitOrder" type="submit" name="submit" value="Submit">`
 						+  `</form>`;
 			return display;
 		},
@@ -455,12 +612,86 @@ class InventoryItem {
 								+  `<label for="quantity">Quantity: </label>`
 								+  `<input id="quantity" type="text" name="quantity" value="${selected.quantity}">`
 							+  `</div>`
-							+  `<input id="customerName" type="submit" name="submit" value="Submit">`
+							+  `<input  class="submit" id="submitInventory" type="submit" name="submit" value="Submit">`
 						+  `</form>`;
 			return display;
 		},
-		saveChanges: () => {
+		saveChanges: (eee) => {
+			let exists = false;
+			if(eee){exists = true;}
+			if(octupus.getState() == "product"){
+				let pCodeInput = $("#productCode").val();
+				let nameInput = $("#name").val();
+				let unitPriceInput = $("#unitPrice").val();
+				let retailPriceInput = $("#retailPrice").val();
+				let pvInput = $("#pv").val();
+				
+				if(exists){
+					octupus.getProduct().forEach((prod, i)=>{
+						if(prod.productCode == eee.currentTarget.parentElement.parentElement.dataset.pcode){
+							prod.productCode = pCodeInput;
+							prod.name = nameInput;
+							prod.unitPrice = unitPriceInput;
+							prod.retailPrice = retailPriceInput;
+							prod.PV = pvInput;
+						}
+					});					
+				}else {
+					octupus.getProduct().push(new Product(pCodeInput, nameInput, unitPriceInput, retailPriceInput, pvInput));
+				}
+				octupus.setLocalStorage("product");
+				viewMainProduct.init();
+				viewLanding.event();
+			}else if(octupus.getState() == "order"){
+				if(exists){
+					octupus.getOrder().forEach((ord, i)=>{
+						let customerNameInput = $("#customerName").val();
+						let customerCodeInput = $("#customerCode").val();
+						let longrichOrderCodeInput = $("#longrichOrderCode").val();
+						let comentInput = $("#coment").val();
+						let modeOfPaymentInput = $("#modeOfPayment").val();
 
+						if(ord.index == eee.currentTarget.parentElement.parentElement.dataset.index){
+							ord.customerName = customerNameInput;
+							ord.customerCode = customerCodeInput;
+							ord.longrichOrderCode = longrichOrderCodeInput;
+							ord.coment = comentInput;
+							ord.modeOfPayment = modeOfPaymentInput;
+
+							$("#productList tbody td").each((itr, td)=>{
+								td.classList.forEach((t)=>{
+									if(t === "textDoubleCLick"){
+										ord.products.forEach((invIt)=>{
+											if (invIt.product.name === td.previousSibling.textContent) {
+												invIt.quantity = td.textContent;
+											}
+										});
+									}
+								});
+							});
+						}
+					});			
+				}else {
+					octupus.getOrder().push(customerNameInput, customerCodeInput, longrichOrderCodeInput, comentInput, modeOfPaymentInput, $("#indexLabel").textContent);
+
+				}
+				octupus.setLocalStorage("order");
+				viewMainOrder.init();
+				viewLanding.event();
+			}else if(octupus.getState() == "inventory"){
+				if(exists){
+					octupus.getInventory().forEach((inv, i)=>{
+						if(inv.product.productCode == eee.currentTarget.parentElement.parentElement.dataset.pcode){
+							inv.quantity = $("#quantity").val();
+						}
+					});
+				}else {
+					octupus.getInventory().push(new InventoryItem(octupus.getProduct()[2], $("#quantity").val()))
+				}
+				octupus.setLocalStorage("inventory");
+				viewMainInventory.init();
+				viewLanding.event();
+			}
 		}
 	};
 	octupus.init();
