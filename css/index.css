@@ -125,7 +125,6 @@
   /*background: linear-gradient(to right, #25c481, #25b7c4);*/
 }
 #menu-section {
-  visibility: hidden;
   color: rgba(var(--text-color), 1);
 }
 #menu-section input {
@@ -146,6 +145,9 @@ input#menu:checked ~ #menu-content {
   visibility: visible;
   transform: translate(0);
   transition: transform .5s .4s;
+}
+#menu-content {
+  visibility: hidden;
 }
 
 #menu-controller {

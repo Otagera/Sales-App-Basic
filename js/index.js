@@ -199,7 +199,7 @@ window.matchMedia('max-width: 380px').addListener((e)=>{
 			// $("#full-site").css("overflow", "visible");
 			$("#full-site").css("max-height", "auto");
 			$("#list").css("z-index", "auto");
-			$("#menu-section").css("visibility", "visible");
+			$("#menu-content").css("visibility", "visible");
 
 			//set State
 			octupus.setState(e.target.textContent);
