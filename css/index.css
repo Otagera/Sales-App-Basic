@@ -131,25 +131,18 @@
   display: none;
 }
 
-input#menu:checked ~ #menu-controller {
-  transform: translate(-10vw);
+#menu-section button:nth-of-type(1) {
+  margin-top: 5em;
 }
-
-input#menu:checked ~ #menu-dimmed-bg {
-  visibility: visible;
-  transform: translate(0);
-  transition: transform 1s 0s;
+#menu-section button {
+  background: linear-gradient(rgba(var(--gradient-1), 1), rgba(var(--gradient-2), 1));
+  color: black;
+  border-radius: 4px;
+  width: 100%;
+  font-size: 20px;
+  border-bottom: none;
+  padding: .6em 0.5em;
 }
-
-input#menu:checked ~ #menu-content {
-  visibility: visible;
-  transform: translate(0);
-  transition: transform .5s .4s;
-}
-#menu-content {
-  visibility: hidden;
-}
-
 #menu-controller {
   width: calc(4.5vw + 70px);
   min-height: 100vh;
@@ -171,86 +164,6 @@ input#menu:checked ~ #menu-content {
   background-size: contain;
   background-repeat: no-repeat;
 }
-
-#menu-dimmed-bg {
-  visibility: hidden;
-  transform: translate(-120vw);
-  transition: all 0.8s 0.2s, color 0.2s, background-color 0.2s;
-  background-color: rgba(var(--text-color), 0.6);
-  z-index: 1;
-  position: fixed;
-  top: 0;
-  min-height: 100vh;
-  width: 100%;
-}
-
-#menu-content {
-  --menu-font-size: 2.25rem;
-  transform: translate(-1200px);
-  visibility: hidden;
-  transition: all 0.6s 0s, color 0.2s, background-color 0.2s;
-  padding: 40px;
-  padding-left: 100px;
-  position: absolute;
-  top: 0;
-  z-index: 2;
-  box-sizing: border-box;
-  min-height: 100vh;
-  background-color: rgba(var(--bg-color), 1);
-  width: 54%;
-}
-  #menu-content header {
-    transition: all 0.2s;
-    display: flex;
-    justify-content: space-between; }
-    #menu-content header h4 {
-      text-transform: uppercase;
-      margin: 0;
-      font-size: var(--menu-font-size); }
-    #menu-content header label {
-      width: 40px;
-      height: 40px;
-      margin-right: 100px;
-      background-image: url("../images/close.png");
-      background-size: contain;
-      background-repeat: no-repeat; }
-  #menu-content #theme {
-    transition: all 0.2s; }
-    #menu-content #theme h5 {
-      margin-top: 7rem;
-      font-size: var(--menu-font-size);
-      text-transform: uppercase;
-      line-height: 10%; }
-      #menu-content #theme h5 span {
-        margin-left: 40px; }
-        #menu-content #theme h5 span:hover {
-          opacity: .6; }
-  #menu-content #completed-tasks {
-    transition: all 0.2s; }
-    #menu-content #completed-tasks h5 {
-      font-size: var(--menu-font-size);
-      margin: 7rem 0 1.5rem;
-      text-transform: uppercase; }
-    #menu-content #completed-tasks li {
-      font-size: var(--menu-font-size);
-      list-style: none;
-      margin: 12px 0;
-      width: max-content;
-      padding: 5px; }
-      #menu-content #completed-tasks li span {
-        margin-right: 22px; }
-  #menu-content #reset {
-    transition: all 0.2s;
-    font-size: var(--menu-font-size);
-    text-transform: uppercase;
-    padding: 5px;
-    width: max-content; }
-    #menu-content #reset:hover {
-      background-color: rgba(var(--text-color), 1);
-      color: rgba(var(--bg-color), 1); }
-  @media (max-width: 1500px) {
-    #menu-content {
-      width: 70%; } }
 
 
 #main {
@@ -440,7 +353,6 @@ tr.test {
   font-size: 20px;
   border-bottom: none;
   padding: .6em 3em;
-  /*float: right;*/
 }
 #editForm button.black:hover {
   opacity: .6;

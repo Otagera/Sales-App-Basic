@@ -196,7 +196,6 @@ window.matchMedia('max-width: 380px').addListener((e)=>{
 			$("#bg").css("transform", "translate(-200vw)");
 			$("#dimmed-bg").css("transform", "translate(-200vw)");
 			$("#full-site").css("visibility", "visible");
-			// $("#full-site").css("overflow", "visible");
 			$("#full-site").css("max-height", "auto");
 			$("#list").css("z-index", "auto");
 			$("#menu-content").css("visibility", "visible");
