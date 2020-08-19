@@ -15,6 +15,7 @@
     transform: translate(0) scale(1);
   }
 }
+
 :root {  
   --bg-color: 255, 255, 255;
   --text-color: 12, 12, 12;
@@ -304,6 +305,12 @@ input#menu:checked ~ #menu-content {
   background-color: rgba(var(--bg-color), 1);
   justify-content: space-around;
 }
+
+#main #mainHeader header button{
+  height: 50px;
+  margin: auto;
+ }
+
 #mainHeader {
   display: flex;
   flex-direction: row;
@@ -332,15 +339,16 @@ input#menu:checked ~ #menu-content {
 #main #mainBody {
   display: flex;
   flex-direction: row;
-  margin-top: 10px;
+  margin-top: 30px;
 }
 
 #main #list {
-  height: 65vh;
+  max-height: 65vh;
   width: 30%;
   display: hidden;
   z-index: -1;
 }
+
 #main table{
   margin: 1em 0;
   border-collapse: collapse;

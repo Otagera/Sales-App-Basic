@@ -42,6 +42,16 @@ $(document).ready(()=>{
 		}
 	});
 });*/
+
+window.matchMedia('max-width: 380px').addListener((e)=>{
+	if(e.matches){
+		console.log("small");
+	}else {
+		console.log("bigger");
+	}
+});
+
+
 (function(){
 
 	let model = {
@@ -314,6 +324,7 @@ $(document).ready(()=>{
 			$("#list").css("margin-left", "5.5rem");
 			$("#editForm").css("visibility", "hidden");
 			$("tbody").html(display);
+			
 		}
 	};
 	let viewMainOrder = {
@@ -507,16 +518,16 @@ $(document).ready(()=>{
 			if(octupus.getState() == "product"){
 				display = viewMainEdit.productEdit(selected);
 				$("#editForm").css("margin-left", "5.5rem");
-				$("#editForm").css("height", "55vh");
+				$("#editForm").css("height", "360px");
 			}else if(octupus.getState() == "order"){
 				display = viewMainEdit.orderEdit(selected);
 				$("#editForm").css("margin-left", "1.5rem");
 				$("#productList").css("display", "initial");
-				$("#editForm").css("height", "75vh");
+				$("#editForm").css("height", "450px");
 			}else if(octupus.getState() == "inventory"){
 				display = viewMainEdit.inventoryEdit(selected);
 				$("#editForm").css("margin-left", "5rem");
-				$("#editForm").css("height", "25vh");
+				$("#editForm").css("height", "170px");
 				$("#editForm").css("margin-top", "5rem");
 			}
 			$("#editForm").css("visibility", "visible");
