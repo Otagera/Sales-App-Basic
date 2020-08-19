@@ -186,7 +186,7 @@ window.matchMedia('max-width: 380px').addListener((e)=>{
 	};
 	let viewLanding = {
 		init: () => {
-			// $("#menu")[0].checked = false;
+			$("#menu")[0].checked = false;
 			// viewLanding.enter();
 			let enterBtns = $(".btn");
 			enterBtns.click((e)=>{viewLanding.enter(e);});
