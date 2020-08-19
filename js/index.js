@@ -186,7 +186,7 @@ window.matchMedia('max-width: 380px').addListener((e)=>{
 	};
 	let viewLanding = {
 		init: () => {
-			// $("#menu")[0].checked = false;
+			$("#menu")[0].checked = false;
 			// viewLanding.enter();
 			let enterBtns = $(".btn");
 			enterBtns.click((e)=>{viewLanding.enter(e);});
@@ -199,6 +199,7 @@ window.matchMedia('max-width: 380px').addListener((e)=>{
 			// $("#full-site").css("overflow", "visible");
 			$("#full-site").css("max-height", "auto");
 			$("#list").css("z-index", "auto");
+			$("#menu-section").css("visibility", "visible");
 
 			//set State
 			octupus.setState(e.target.textContent);

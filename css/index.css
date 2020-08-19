@@ -125,6 +125,7 @@
   /*background: linear-gradient(to right, #25c481, #25b7c4);*/
 }
 #menu-section {
+  visibility: hidden;
   color: rgba(var(--text-color), 1);
 }
 #menu-section input {
