@@ -29,7 +29,7 @@ class Delivery {
 class InventoryItem {
 	constructor(product, quantity){
 		this.product = product;
-		this.quantity = quantity || Math.floor(Math.random() * (50 - 0) + 0 );
+		this.quantity = quantity || (quantity === 0)? 0 : Math.floor(Math.random() * (50 - 0) + 0 );
 	}
 };/*
 //Prevent Enter from submnitting form 
@@ -42,13 +42,6 @@ $(document).ready(()=>{
 		}
 	});
 });*/
-window.matchMedia('max-width: 380px').addListener((e)=>{
-	if(e.matches){
-		console.log("small");
-	}else {
-		console.log("bigger");
-	}
-});
 
 
 (function(){
@@ -61,6 +54,7 @@ window.matchMedia('max-width: 380px').addListener((e)=>{
 		state: "",
 		ENTER_KEY: 13,
 		ESC_KEY: 27,
+		small: false,
 
 		init: () => {
 			//Initialize Sample Product
@@ -154,6 +148,9 @@ window.matchMedia('max-width: 380px').addListener((e)=>{
 			}else if (text === "Inventory") {
 				model.state = "inventory";
 			}
+		},
+		setSmall: (temp)=>{
+			model.small = temp;
 		}
 	};
 
@@ -182,6 +179,18 @@ window.matchMedia('max-width: 380px').addListener((e)=>{
 		},
 		getLocalStorage:()=>{
 			return model.getLocalStorage();
+		},
+		setSmall: (tmp)=>{
+			model.setSmall(tmp);
+		},
+		getSmall: ()=>{
+			return model.small;
+		},
+		getEnter: ()=>{
+			return model.ENTER_KEY;
+		},
+		getEsc: ()=>{
+			return model.ESC_KEY;
 		}
 	};
 	let viewLanding = {
@@ -208,37 +217,18 @@ window.matchMedia('max-width: 380px').addListener((e)=>{
 			viewLanding.event();
 		},
 		event: ()=>{
+			//Listener for viewing products in order
 			$(".clicker").click((e)=>{viewMainOrder.renderProducts(e);});
+			//Listener for the edit button, then inside for double clicking on the product quantity to edit
+			//then insode on keypress for when the key "enter" is clicked on to exit edit mode
 			$(".writeIconSpan").click((e)=>{
 				viewMainEdit.init(e, "edit");
-				$(".productRow").on("dblclick", ".textDoubleCLick", (ee)=>{
-					$(ee.target).replaceWith(`<input class="smallTableInput" id="" type="" name="" value="${ee.target.textContent}">`);
-					$(".productRow").on("keypress", ".smallTableInput", (eee)=>{
-						if(eee.which === 13) {
-							eee.preventDefault();
-							$(eee.target).replaceWith(`<td class="textDoubleCLick">${eee.target.value}</td>`);
-							return;
-						}
-					});
-				});
-				$(".submit").click((ee)=>{
-					$("#productList tbody input").each((itr, inp)=>{
-						inp.classList.forEach((t)=>{
-							console.log(t);
-							if(t === "smallTableInput"){
-								inp.replaceWith(`<td class="textDoubleCLick">${inp.value}</td>`);
-							}
-						});
-					});
-					ee.preventDefault();
-					viewMainEdit.saveChanges(e);
-				});
-
+				viewLanding.subEventForm(e);
 			});
 			$(".deleteIconSpan").click((e)=>{
 				viewMainModal.init();
 				$("#yesDelete").click(()=>{
-                    $('#yesDelete').css({display: "block"}).html('<img src="../images/loader.gif" alt="..." width: "10" height="10";>');
+                    $('#yesDelete').css({display: "block"}).html('<img src="./images/loader.gif" alt="..." width: "10" height="10";>');
 					viewMainEdit.init(e, "delete");
 					// $("#editForm").css("visibility", "hidden");
 				});
@@ -251,20 +241,71 @@ window.matchMedia('max-width: 380px').addListener((e)=>{
 				octupus.setState(e.target.textContent);
 				viewLanding.render();
 				viewMainEdit.init(e, "new");
+				viewLanding.subEventForm();
+			});
 
+			/*window.matchMedia('(max-width: 1100px)').addListener((e)=>{
+				console.log("Change");
+				if(e.matches){
+					console.log("small");
+					octupus.setSmall(true);
+				}else {
+					console.log("bigger");
+					octupus.setSmall(true);
+				}
+			});*/
+
+			if(screen.width <= 1100){
+				octupus.setSmall(true);
+			}else {
+				octupus.setSmall(false);
+			}
+		},
+		subEventForm:(e)=>{
+				$(".productRow").on("dblclick", ".textDoubleCLick", (ee)=>{
+					$(ee.target).replaceWith(`<input class="smallTableInput" id="" type="" name="" value="${ee.target.textContent}">`);
+					$(".productRow").on("keypress", ".smallTableInput", (eee)=>{
+						if(eee.which === octupus.getEnter()) {
+							eee.preventDefault();
+							$(eee.target).replaceWith(`<td class="textDoubleCLick">${eee.target.value}</td>`);
+							return;
+						}
+					});
+					$(".productRow").on("keydown", ".smallTableInput", (eee)=>{
+						 if(eee.which === octupus.getEsc()) {
+							eee.preventDefault();
+							$(eee.target).replaceWith(`<td class="textDoubleCLick">${ee.target.textContent}</td>`);
+							return;
+						}
+					});
+				});
+
+				if(octupus.getSmall()){
+					Array.from($(".productRow")).forEach((tr)=>{
+						td = tr.lastChild;
+						td.classList.forEach((t)=>{
+							if(t === "textDoubleCLick"){
+								$(td).trigger($.Event('dblclick'));
+							}
+						});
+					});
+				}
 				$(".submit").click((ee)=>{
 					$("#productList tbody input").each((itr, inp)=>{
 						inp.classList.forEach((t)=>{
-							console.log(t);
 							if(t === "smallTableInput"){
-								inp.replaceWith(`<td class="textDoubleCLick">${inp.value}</td>`);
+								//Auto Enter
+								$(".smallTableInput").trigger($.Event('keypress', { which: 13}));
 							}
 						});
 					});
 					ee.preventDefault();
-					viewMainEdit.saveChanges();
+                    $(".submit").css({display: "block"}).html('<img src="./images/loader.gif" alt="..." width: "10" height="10";>');
+					setTimeout(function() {
+						viewMainEdit.saveChanges(e);
+					}, 2500);
 				});
-			});
+
 		},
 		render: () => {
 			if (model.state === "product") {
@@ -319,8 +360,7 @@ window.matchMedia('max-width: 380px').addListener((e)=>{
 							+  `</td>`
 						+  `</tr>`;
 			}
-			$("#list").css("width", "41.3%");
-			$("#list").css("margin-left", "5.5rem");
+			$("#editForm").find("form").css("visibility", "hidden");
 			$("#editForm").css("visibility", "hidden");
 			$("tbody").html(display);
 			
@@ -342,6 +382,9 @@ window.matchMedia('max-width: 380px').addListener((e)=>{
 			let display = "";
 			for(let i = 0; i < octupus.getOrder().length; i++){
 				let prods = "";
+				// To set the data id to select the order and see the products
+				//if not products then no data-id and no displaying of anything
+				let dataId = (octupus.getOrder()[i].products.length)? octupus.getOrder()[i].index : -1;
 				for(let j = 0; j < octupus.getOrder()[i].products.length; j++){
 					prods += `<li>`
 								+  `<span>${octupus.getOrder()[i].products[j].product.name}:</span>`
@@ -362,15 +405,14 @@ window.matchMedia('max-width: 380px').addListener((e)=>{
 								+  `<span class="deleteIconSpan"><i class="fas fa-trash deleteIcon"></i> </span>`
 							+  `</td>`
 						+  `</tr>`
-						+  `<tr class="test" data-id="${octupus.getOrder()[i].index}">`
+						+  `<tr class="test" data-id="${dataId}">`
 							+  `<td colspan="6">`
 								+  `<p>Products</p>`
 								+  `<ul>${prods}</ul>`
 							+  `</td>`
 						+  `</tr>`;
 			}
-			$("#list").css("width", "60%");
-			$("#list").css("margin-left", "1.5rem");
+			$("#editForm").find("form").css("visibility", "hidden");
 			$("#editForm").css("visibility", "hidden");
 			$("#productList").css("display", "none");
 			$("#list").find("tbody").html(display);
@@ -411,8 +453,7 @@ window.matchMedia('max-width: 380px').addListener((e)=>{
 							+  `</td>`
 						+  `</tr>`;
 			}
-			$("#list").css("width", "30%");
-			$("#list").css("margin-left", "5.5rem");
+			$("#editForm").find("form").css("visibility", "hidden");
 			$("#editForm").css("visibility", "hidden");
 			$("tbody").html(display);
 		}
@@ -473,6 +514,7 @@ window.matchMedia('max-width: 380px').addListener((e)=>{
 				}			
 			}else if(operation === "new"){
 				viewMainEdit.render();
+				viewLanding.event();
 			}else if(operation === "delete"){
 				if(octupus.getState() == "product"){
 					octupus.getProduct().forEach((prod, i)=>{
@@ -481,6 +523,7 @@ window.matchMedia('max-width: 380px').addListener((e)=>{
 							octupus.setLocalStorage("product");
 							setTimeout(()=>{
 								viewMainModal.successRender(prod);
+								viewLanding.event();
 							}, 2000);
 						}
 					});
@@ -490,7 +533,8 @@ window.matchMedia('max-width: 380px').addListener((e)=>{
 							octupus.getOrder().splice(i, 1);
 							octupus.setLocalStorage("order");
 							setTimeout(()=>{
-								viewMainModal.successRender(prod);
+								viewMainModal.successRender(ord);
+								viewLanding.event();
 							}, 2000);
 						}
 					});
@@ -500,7 +544,8 @@ window.matchMedia('max-width: 380px').addListener((e)=>{
 							octupus.getInventory().splice(i, 1);
 							octupus.setLocalStorage("inventory");
 							setTimeout(()=>{
-								viewMainModal.successRender(prod);
+								viewMainModal.successRender(inv);
+								viewLanding.event();
 							}, 2000);
 						}
 					});
@@ -531,6 +576,7 @@ window.matchMedia('max-width: 380px').addListener((e)=>{
 			}
 			$("#editForm").css("visibility", "visible");
 			$("#editForm").html(display);
+			$("#editForm").find("form").css("visibility", "visible");
 		},
 		productEdit: (selected)=> {
 			let tempSelected = selected || new Product("", "", "", "", "");
@@ -560,23 +606,14 @@ window.matchMedia('max-width: 380px').addListener((e)=>{
 			return display;
 		},
 		orderEdit: (selected)=> {
-			/* change for mode of payment
-			let prods = "";
-			for(let i = 0; i < selected.products.length; i++){
-				console.log(selected.products[i]);
-				prods += `<option value="${selected.products[i].product.productCode}">${selected.products[i].product.name}</option>`;
-			}
-			+  `<select class="custom-select" id="products">`
-				+  `<option selected></option>`
-				+  `${prods}`
-			+  `</select>`
-			*/
-			let tempSelected = selected || new Order("", "", "", [], "", "");
+			let tempSelected = selected || new Order("", "", "", model.product.map((prod)=>{return new InventoryItem(prod, 0); }), "", "");
 			let prods = "";
 			for(let i = 0; i < tempSelected.products.length; i++){
 				prods += `<tr class="productRow"><td>${tempSelected.products[i].product.name}</td><td class="textDoubleCLick">${tempSelected.products[i].quantity}</td></tr>`;
 			}
-			let display = `<form>`
+
+
+			let displayBig = `<form>`
 							+  `<div class="input-group">`
 								+  `<label id="indexLabel">Index: ${tempSelected.index}</label>`
 							+  `</div>`
@@ -611,6 +648,47 @@ window.matchMedia('max-width: 380px').addListener((e)=>{
 							+  `</div>`
 							+  `<input  class="submit" id="submitOrder" type="submit" name="submit" value="Submit">`
 						+  `</form>`;
+			let displaySmall = `<form>`
+							+  `<div class="input-group">`
+								+  `<label id="indexLabel">Index: ${tempSelected.index}</label>`
+							+  `</div>`
+							+  `<div class="input-group">`
+								+  `<label for="customerName">Customer Name: </label>`
+								+  `<input id="customerName" type="text" name="customerName" value="${tempSelected.customerName}">`
+							+  `</div>`
+							+  `<div class="input-group">`
+								+  `<label for="customerCode">Customer Code: </label>`
+								+  `<input id="customerCode" type="text" name="customerCode" value="${tempSelected.customerCode}">`
+							+  `</div>`
+							+  `<div class="input-group">`
+								+  `<label for="longrichOrderCode">Longrich Order Code</label>`
+								+  `<input id="longrichOrderCode" type="text" name="longrichOrderCode" value="${tempSelected.longrichOrderCode}">`
+							+  `</div>`
+							+  `<div class="input-group">`
+								+  `<label for="coment">Comment</label>`
+								+  `<input id="coment" type="text" name="coment" value="${tempSelected.coment}">`
+							+  `</div>`
+							+  `<div class="input-group">`
+								+  `<label for="modeOfPayment">Mode Of Payment</label>`
+								+  `<input id="modeOfPayment" type="text" name="modeOfPayment" value="${tempSelected.modeOfPayment}">`
+							+  `</div>`
+							+  `<input  class="submit" id="submitOrder" type="submit" name="submit" value="Submit">`
+						+  `</form>`
+						+  `<div id="testtest">`
+							+  `<p for="products">Products: </p></br>`
+								+  `<div data-simplebar id="productList">`
+								+  `<table>`
+									+  `<thead><tr><th>Name</th><th>Quantity</th></tr></thead>`
+									+  `<tbody>${prods}</tbody>`
+								+  `</table>`
+							+  `</div>`
+						+  `</div>`;
+			let display = "";
+			if(octupus.getSmall()){
+					display = displaySmall;
+			}else {
+				display = displayBig;
+			}
 			return display;
 		},
 		inventoryEdit: (selected)=> {
@@ -653,14 +731,13 @@ window.matchMedia('max-width: 380px').addListener((e)=>{
 				viewMainProduct.init();
 				viewLanding.event();
 			}else if(octupus.getState() == "order"){
+				let customerNameInput = $("#customerName").val();
+				let customerCodeInput = $("#customerCode").val();
+				let longrichOrderCodeInput = $("#longrichOrderCode").val();
+				let comentInput = $("#coment").val();
+				let modeOfPaymentInput = $("#modeOfPayment").val();
 				if(exists){
 					octupus.getOrder().forEach((ord, i)=>{
-						let customerNameInput = $("#customerName").val();
-						let customerCodeInput = $("#customerCode").val();
-						let longrichOrderCodeInput = $("#longrichOrderCode").val();
-						let comentInput = $("#coment").val();
-						let modeOfPaymentInput = $("#modeOfPayment").val();
-
 						if(ord.index == eee.currentTarget.parentElement.parentElement.dataset.index){
 							ord.customerName = customerNameInput;
 							ord.customerCode = customerCodeInput;
@@ -682,7 +759,19 @@ window.matchMedia('max-width: 380px').addListener((e)=>{
 						}
 					});			
 				}else {
-					octupus.getOrder().push(customerNameInput, customerCodeInput, longrichOrderCodeInput, comentInput, modeOfPaymentInput, $("#indexLabel").textContent);
+					let thisProds = [];
+					$("#productList tbody td").each((itr, td)=>{
+						td.classList.forEach((t)=>{
+							if(t === "textDoubleCLick"){
+								octupus.getProduct().forEach((prod, i)=>{
+									if(prod.name == td.previousSibling.textContent && td.textContent > 0){
+										thisProds.push(new InventoryItem(prod, td.textContent));
+									}
+								});
+							}
+						});
+					});
+					octupus.getOrder().push(new Order(customerNameInput, customerCodeInput, longrichOrderCodeInput, thisProds, comentInput, modeOfPaymentInput, $("#indexLabel").textContent));
 
 				}
 				octupus.setLocalStorage("order");
