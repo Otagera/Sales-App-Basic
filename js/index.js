@@ -42,7 +42,6 @@ $(document).ready(()=>{
 		}
 	});
 });*/
-
 window.matchMedia('max-width: 380px').addListener((e)=>{
 	if(e.matches){
 		console.log("small");
